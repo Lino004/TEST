@@ -1,58 +1,75 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+<div class="container is-max-desktop">
+  <form class="has-text-left" @submit.prevent="upload">
+    <div class="field">
+      <label class="label">foodId</label>
+      <div class="control">
+        <input class="input" type="number" v-model="query.foodId" required>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">type</label>
+      <div class="control">
+        <div class="select">
+          <select v-model="query.type" required>
+            <option value="image">image</option>
+            <option value="autre">autre</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="file">
+      <label class="file-label">
+        <input class="file-input" type="file" name="resume" @change="onFileChange" required>
+        <span class="file-cta">
+          <span class="file-label">
+            {{ file ? file.name : 'Choose a file…' }}
+          </span>
+        </span>
+      </label>
+    </div>
+    <br>
+
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-link" type="submit">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
-  }
+  data() {
+    return {
+      query: {
+        foodId: '19',
+        type: 'image',
+      },
+      file: null,
+    }
+  },
+  methods: {
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.file = files[0];
+    },
+    async upload() {
+      try {
+        const formData = new FormData();
+        formData.append('image', this.file);
+        const response = await axios.post(`http://localhost:1337/files?foodId=${this.query.foodId}&type=${this.query.type}`, formData);
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  },
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
